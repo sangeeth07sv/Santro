@@ -23,10 +23,10 @@ export function CartItemRow({ item }: { item: any }) {
       </div>
 
       <div className="flex-1">
-        <Link href={`/products/${item.product?.slug}`} className="text-sm font-medium hover:text-brand-600">
+        <Link href={`/products/${item.product?.slug}`} className="text-sm font-medium hover:text-indigo-600">
           {item.product?.name}
         </Link>
-        <p className="mt-1 text-sm text-brand-700 dark:text-brand-400">
+        <p className="mt-1 text-sm text-indigo-700 dark:text-marigold-400">
           ₹{item.product?.price?.toLocaleString("en-IN")}
         </p>
       </div>
