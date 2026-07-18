@@ -324,6 +324,17 @@ $$ language plpgsql security definer;
 -- ============================================================================
 -- ROW LEVEL SECURITY
 -- ============================================================================
+-- NOTE: RLS policies below only take effect once the anon/authenticated
+-- roles have base table privileges. Without these GRANTs, Postgres blocks
+-- access before RLS is ever evaluated ("permission denied for table ...").
+
+grant usage on schema public to anon, authenticated;
+grant select on all tables in schema public to anon;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+alter default privileges in schema public grant select on tables to anon;
+alter default privileges in schema public grant select, insert, update, delete on tables to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+alter default privileges in schema public grant usage, select on sequences to authenticated;
 
 alter table profiles enable row level security;
 alter table categories enable row level security;
