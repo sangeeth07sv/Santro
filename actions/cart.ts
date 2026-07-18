@@ -89,6 +89,20 @@ export async function getCart() {
   return { items: list, subtotal };
 }
 
+export async function getWishlist() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("wishlists")
+    .select("id, product:products(*, product_images(*))")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  return (data ?? []).map((row: any) => row.product).filter(Boolean);
+}
+
 export async function toggleWishlist(productId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -110,4 +124,5 @@ export async function toggleWishlist(productId: string) {
   await supabase.from("wishlists").insert({ user_id: user.id, product_id: productId });
   revalidatePath("/dashboard/wishlist");
   return { success: true, wishlisted: true };
-}
+    }
+    
