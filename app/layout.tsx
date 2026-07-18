@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Navbar } from "@/components/layout/Navbar";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { getCurrentUser } from "@/actions/auth";
 import { getCart } from "@/actions/cart";
 import "./globals.css";
@@ -29,8 +30,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           role={auth?.profile?.role}
           cartCount={items.reduce((n: number, i: any) => n + i.quantity, 0)}
         />
-        <main className="min-h-[70vh]">{children}</main>
-        <footer className="mt-16 bg-indigo-800 py-12 text-sm text-indigo-100">
+        <main className="min-h-[70vh] pb-20 md:pb-0">{children}</main>
+        <BottomNav
+          isLoggedIn={!!auth}
+          role={auth?.profile?.role}
+          cartCount={items.reduce((n: number, i: any) => n + i.quantity, 0)}
+        />
+        <footer className="mt-16 bg-indigo-800 py-12 pb-24 text-sm text-indigo-100 md:pb-12">
           <div className="mx-auto max-w-7xl px-4">
             <p className="font-display text-lg text-white">SANTRO</p>
             <p className="mt-1 text-indigo-300">Everything, sorted. Delivered across India.</p>
