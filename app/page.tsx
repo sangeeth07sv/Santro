@@ -3,7 +3,28 @@ import Link from "next/link";
 import { getFeaturedProducts } from "@/actions/products";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { ProductGridSkeleton } from "@/components/shop/ProductCardSkeleton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShoppingBag, Store, Truck } from "lucide-react";
+
+const ROLE_CARDS = [
+  {
+    href: "/products",
+    icon: ShoppingBag,
+    title: "Customer",
+    desc: "Browse products uploaded by shops and order what you need.",
+  },
+  {
+    href: "/shop/dashboard",
+    icon: Store,
+    title: "Shop Owner",
+    desc: "Upload your products so customers can find and buy them.",
+  },
+  {
+    href: "/delivery/dashboard",
+    icon: Truck,
+    title: "Delivery Partner",
+    desc: "See confirmed orders and their delivery locations on the map.",
+  },
+] as const;
 
 export default function HomePage() {
   return (
@@ -17,6 +38,22 @@ export default function HomePage() {
           <p className="mx-auto mt-4 max-w-xl text-indigo-200">
             Fashion, electronics, home & daily essentials — one cart, one checkout, delivered across India.
           </p>
+
+          {/* Role picker: this is the "3 dashboards" entry point */}
+          <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-3">
+            {ROLE_CARDS.map(({ href, icon: Icon, title, desc }) => (
+              <Link
+                key={href}
+                href={href}
+                className="group flex flex-col items-center gap-2 rounded-xl border border-indigo-600 bg-indigo-900/40 p-5 text-center transition-colors hover:border-marigold-400 hover:bg-indigo-900/70"
+              >
+                <Icon className="h-7 w-7 text-marigold-400" />
+                <span className="font-semibold text-white">{title}</span>
+                <span className="text-xs text-indigo-200">{desc}</span>
+              </Link>
+            ))}
+          </div>
+
           <Link href="/products" className="btn-primary mt-8 inline-flex">
             Start shopping <ArrowRight className="h-4 w-4" />
           </Link>
