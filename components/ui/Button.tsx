@@ -9,9 +9,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<string, string> = {
-  primary: "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-card",
-  outline: "border border-brand-200 bg-white text-brand-700 hover:bg-brand-50 dark:bg-transparent dark:border-slate-700 dark:text-slate-100",
-  ghost: "text-brand-700 hover:bg-brand-50 dark:text-slate-100 dark:hover:bg-slate-800",
+  primary: "bg-marigold-500 text-indigo-900 hover:bg-marigold-300 active:bg-marigold-600 shadow-card",
+  outline: "border border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-50 dark:bg-transparent dark:border-indigo-600 dark:text-slate-100",
+  ghost: "text-indigo-700 hover:bg-indigo-50 dark:text-slate-100 dark:hover:bg-indigo-700",
   danger: "bg-red-600 text-white hover:bg-red-700",
 };
 
