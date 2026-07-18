@@ -19,9 +19,13 @@ export async function getProducts(filters: ProductFilters = {}) {
   const supabase = await createClient();
   const { category, search, minPrice, maxPrice, sort = "newest", page = 1, pageSize = 12 } = filters;
 
+  const categorySelect = category
+    ? "category:categories!inner(name, slug)"
+    : "category:categories(name, slug)";
+
   let query = supabase
     .from("products")
-    .select("*, product_images(*), category:categories(name, slug)", { count: "exact" })
+    .select(`*, product_images(*), ${categorySelect}`, { count: "exact" })
     .eq("is_active", true);
 
   if (category) query = query.eq("category.slug", category);
