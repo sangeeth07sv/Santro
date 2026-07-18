@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { Toaster } from "sonner";
-import { Navbar } from "@/components/layout/Navbar";
-import { BottomNav } from "@/components/layout/BottomNav";
-import { getCurrentUser } from "@/actions/auth";
-import { getCart } from "@/actions/cart";
+import { NavShell, NavShellSkeleton } from "@/components/layout/NavShell";
 import "./globals.css";
 
 const display = Space_Grotesk({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-display" });
@@ -17,25 +15,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const auth = await getCurrentUser();
-  const { items } = await getCart();
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body>
-        <Navbar
-          isLoggedIn={!!auth}
-          isAdmin={auth?.profile?.role === "admin"}
-          role={auth?.profile?.role}
-          cartCount={items.reduce((n: number, i: any) => n + i.quantity, 0)}
-        />
+        <Suspense fallback={<NavShellSkeleton />}>
+          <NavShell />
+        </Suspense>
         <main className="min-h-[70vh] pb-20 md:pb-0">{children}</main>
-        <BottomNav
-          isLoggedIn={!!auth}
-          role={auth?.profile?.role}
-          cartCount={items.reduce((n: number, i: any) => n + i.quantity, 0)}
-        />
         <footer className="mt-16 bg-indigo-800 py-12 pb-24 text-sm text-indigo-100 md:pb-12">
           <div className="mx-auto max-w-7xl px-4">
             <p className="font-display text-lg text-white">SANTRO</p>
