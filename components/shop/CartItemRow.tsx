@@ -11,7 +11,9 @@ export function CartItemRow({ item }: { item: any }) {
   const image = item.product?.product_images?.find((i: any) => i.is_primary)?.url ?? item.product?.product_images?.[0]?.url;
 
   function changeQty(delta: number) {
-    startTransition(() => updateCartItemQuantity(item.id, item.quantity + delta));
+    startTransition(async () => {
+      await updateCartItemQuantity(item.id, item.quantity + delta);
+    });
   }
 
   return (
@@ -40,7 +42,7 @@ export function CartItemRow({ item }: { item: any }) {
       </div>
 
       <button
-        onClick={() => startTransition(() => removeCartItem(item.id))}
+        onClick={() => startTransition(async () => { await removeCartItem(item.id); })}
         disabled={isPending}
         className="p-2 text-slate-400 hover:text-red-500"
         aria-label="Remove item"
