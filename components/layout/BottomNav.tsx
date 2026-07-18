@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Store, Search, ShoppingCart, User, LayoutDashboard, Package, Truck } from "lucide-react";
+import { Home, Store, Search, Heart, ShoppingCart, User, LayoutDashboard, Package, Truck, Bell } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 type Role = "customer" | "shop_owner" | "delivery_partner" | "admin" | null | undefined;
@@ -13,28 +13,30 @@ interface NavItem {
   icon: typeof Home;
 }
 
-const CUSTOMER_ITEMS: [NavItem, NavItem, NavItem, NavItem] = [
+const CUSTOMER_ITEMS: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/products", label: "Shop", icon: Store },
+  { href: "/products", label: "Search", icon: Search },
+  { href: "/dashboard/wishlist", label: "Wishlist", icon: Heart },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
   { href: "/dashboard", label: "Account", icon: User },
 ];
 
-const SHOP_OWNER_ITEMS: [NavItem, NavItem, NavItem, NavItem] = [
+const SHOP_OWNER_ITEMS: NavItem[] = [
   { href: "/shop/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/shop/products", label: "Products", icon: Package },
   { href: "/shop/products/new", label: "Add", icon: Store },
+  { href: "/shop/dashboard/orders", label: "Orders", icon: Bell },
   { href: "/dashboard", label: "Account", icon: User },
 ];
 
-const DELIVERY_ITEMS: [NavItem, NavItem, NavItem, NavItem] = [
+const DELIVERY_ITEMS: NavItem[] = [
   { href: "/delivery/dashboard", label: "Deliveries", icon: Truck },
   { href: "/delivery/dashboard", label: "Active", icon: Package },
   { href: "/products", label: "Shop", icon: Store },
   { href: "/dashboard", label: "Account", icon: User },
 ];
 
-function itemsForRole(role: Role): [NavItem, NavItem, NavItem, NavItem] {
+function itemsForRole(role: Role): NavItem[] {
   if (role === "shop_owner") return SHOP_OWNER_ITEMS;
   if (role === "delivery_partner") return DELIVERY_ITEMS;
   return CUSTOMER_ITEMS;
@@ -55,36 +57,28 @@ export function BottomNav({
   // (there's no role to key the nav off yet — they see the top nav + a sign-in prompt instead).
   if (pathname === "/" || !isLoggedIn) return null;
 
-  const [first, second, , fourth] = itemsForRole(role as Role);
-  const searchHref = "/products";
+  const items = itemsForRole(role as Role);
+  // Pick the single best (longest-prefix) match so nested routes like
+  // /dashboard/wishlist don't also light up the broader /dashboard tab.
+  const activeHref = items
+    .filter((item) => (item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-surface-muted bg-white/95 backdrop-blur dark:border-indigo-700 dark:bg-indigo-900/95 md:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="fixed inset-x-4 bottom-4 z-40 md:hidden"
+      style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Primary"
     >
-      <div className="relative mx-auto grid max-w-md grid-cols-5 items-end px-2 pb-2 pt-2">
-        <NavLink item={first} active={pathname === first.href} />
-        <NavLink item={second} active={pathname === second.href} />
-
-        {/* Center FAB — search */}
-        <div className="flex items-end justify-center">
-          <Link
-            href={searchHref}
-            aria-label="Search"
-            className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-marigold-500 text-indigo-900 shadow-elevated transition-transform active:scale-95"
-          >
-            <Search className="h-6 w-6" />
-          </Link>
-        </div>
-
-        {role === "customer" || !role ? (
-          <NavLink item={CUSTOMER_ITEMS[2]} active={pathname === CUSTOMER_ITEMS[2].href} badge={cartCount} />
-        ) : (
-          <NavLink item={itemsForRole(role as Role)[2]} active={false} />
-        )}
-        <NavLink item={fourth} active={pathname.startsWith(fourth.href)} />
+      <div className="flex items-center justify-between rounded-full bg-white px-2 py-2 shadow-elevated dark:bg-indigo-800">
+        {items.map((item) => (
+          <NavLink
+            key={item.href + item.label}
+            item={item}
+            active={item.href === activeHref}
+            badge={item.label === "Cart" ? cartCount : undefined}
+          />
+        ))}
       </div>
     </nav>
   );
@@ -96,18 +90,20 @@ function NavLink({ item, active, badge }: { item: NavItem; active: boolean; badg
     <Link
       href={item.href}
       className={cn(
-        "relative flex flex-col items-center gap-0.5 py-1 text-[11px] font-medium",
-        active ? "text-marigold-600 dark:text-marigold-300" : "text-ink/40 dark:text-slate-400"
+        "relative flex flex-1 flex-col items-center gap-0.5 rounded-full px-2 py-2 text-[10px] font-medium transition-colors",
+        active
+          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-700 dark:text-white"
+          : "text-ink/40 dark:text-slate-400"
       )}
       aria-current={active ? "page" : undefined}
     >
-      <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
+      <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
       {!!badge && badge > 0 && (
-        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-marigold-500 text-[9px] font-bold text-indigo-900">
+        <span className="absolute right-3 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-marigold-500 text-[9px] font-bold text-indigo-900">
           {badge}
         </span>
       )}
-      <span className="uppercase tracking-wide">{item.label}</span>
+      {item.label}
     </Link>
   );
 }
