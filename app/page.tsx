@@ -9,16 +9,16 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-brand-50 to-white dark:from-slate-900 dark:to-surface-dark">
-        <div className="mx-auto max-w-7xl px-4 py-20 text-center">
-          <h1 className="mx-auto max-w-2xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
-            Premium shopping, <span className="text-brand-600">simplified.</span>
+      <section className="bg-indigo-800">
+        <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:py-20">
+          <h1 className="mx-auto max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            Everything, <span className="text-marigold-400">sorted.</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-slate-500 dark:text-slate-400">
-            Curated products, fast delivery, and a checkout experience built for speed.
+          <p className="mx-auto mt-4 max-w-xl text-indigo-200">
+            Fashion, electronics, home & daily essentials — one cart, one checkout, delivered across India.
           </p>
           <Link href="/products" className="btn-primary mt-8 inline-flex">
-            Shop Now <ArrowRight className="h-4 w-4" />
+            Start shopping <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
@@ -26,8 +26,8 @@ export default function HomePage() {
       {/* Featured products */}
       <section className="mx-auto max-w-7xl px-4 py-16">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Featured Products</h2>
-          <Link href="/products" className="text-sm font-medium text-brand-600 hover:underline">
+          <h2 className="text-2xl font-semibold text-ink dark:text-white">Featured Products</h2>
+          <Link href="/products" className="text-sm font-medium text-indigo-700 hover:underline dark:text-marigold-400">
             View all
           </Link>
         </div>
@@ -44,7 +44,7 @@ async function FeaturedGrid() {
 
   if (products.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 p-12 text-center text-slate-400">
+      <div className="rounded-xl border border-dashed border-surface-muted p-12 text-center text-ink/40">
         No featured products yet. Add some from the admin dashboard.
       </div>
     );
