@@ -55,7 +55,7 @@ export default async function AdminProductsPage() {
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <Link href={`/admin/products/${p.id}`} className="text-brand-600 hover:underline">Edit</Link>
+                    <Link href={`/admin/products/${p.id}`} className="text-indigo-600 hover:underline">Edit</Link>
                     <DeleteProductButton id={p.id} />
                   </td>
                 </tr>
