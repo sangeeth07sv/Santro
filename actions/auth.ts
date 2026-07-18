@@ -63,7 +63,7 @@ export async function signInWithGoogle() {
   });
 
   if (error || !data.url) {
-    return { error: error?.message ?? "Could not start Google sign-in" };
+    redirect("/login?error=google_signin_failed");
   }
   redirect(data.url);
 }
