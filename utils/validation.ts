@@ -12,8 +12,6 @@ export const registerSchema = z
     email: z.string().email("Enter a valid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
-    // Self-selected at signup. "admin" is deliberately excluded — that's
-    // never something the client should be able to request for itself.
     role: z.enum(["customer", "shop_owner", "delivery_partner"]).default("customer"),
   })
   .refine((data) => data.password === data.confirmPassword, {
