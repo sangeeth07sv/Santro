@@ -148,31 +148,62 @@ export async function getUserOrders() {
 
 // ---------------- DELIVERY PARTNER ----------------
 
-/**
- * All orders that are ready to move (confirmed through out_for_delivery).
- * NOTE: there's no per-partner assignment table yet, so this returns every
- * such order to every delivery_partner — fine for one or two partners,
- * not fine once there are many. See migration 002 comment for the caveat.
- */
-export async function getDeliveryOrders() {
+/** Orders assigned to the current delivery partner. */
+export async function getMyDeliveries() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("delivery_partner_id", user.id)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+/** Unassigned confirmed/processing orders a delivery partner can pick up. */
+export async function getAvailableDeliveries() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("orders")
-    .select("id, order_number, status, total, shipping_address, created_at")
-    .in("status", ["confirmed", "processing", "shipped", "out_for_delivery"])
+    .select("*, order_items(*)")
+    .in("status", ["confirmed", "processing"])
+    .is("delivery_partner_id", null)
     .order("created_at", { ascending: true });
   return data ?? [];
 }
 
-export async function getDeliveryOrderById(orderId: string) {
+export async function claimDelivery(orderId: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Please sign in as a delivery partner" };
+
+  const { error } = await supabase
     .from("orders")
-    .select("id, order_number, status, total, shipping_address, order_items(*), created_at")
+    .update({ delivery_partner_id: user.id, status: "shipped" })
     .eq("id", orderId)
-    .single();
-  if (error || !data) return null;
-  return data;
+    .is("delivery_partner_id", null);
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/delivery");
+  return { success: true };
+}
+
+export async function updateDeliveryStatus(orderId: string, status: "out_for_delivery" | "delivered") {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Please sign in as a delivery partner" };
+
+  const { error } = await supabase
+    .from("orders")
+    .update({ status })
+    .eq("id", orderId)
+    .eq("delivery_partner_id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/delivery");
+  return { success: true };
 }
 
 // ---------------- ADMIN ----------------
@@ -195,6 +226,6 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
   revalidatePath("/admin/orders");
   revalidatePath("/dashboard/orders");
-  revalidatePath("/delivery/dashboard");
   return { success: true };
 }
+  
