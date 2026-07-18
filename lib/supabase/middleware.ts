@@ -32,7 +32,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isProtected = path.startsWith("/dashboard") || path.startsWith("/checkout");
+  const isProtected =
+    path.startsWith("/dashboard") ||
+    path.startsWith("/checkout") ||
+    path.startsWith("/shop") ||
+    path.startsWith("/delivery");
   const isAdmin = path.startsWith("/admin");
 
   if (!user && (isProtected || isAdmin)) {
