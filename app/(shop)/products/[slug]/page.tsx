@@ -1,9 +1,11 @@
 import { getProductBySlug, getProductReviews } from "@/actions/products";
+import { getSimilarProducts } from "@/actions/similar";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { AddToCartBar } from "@/components/shop/AddToCartBar";
 import { ReviewList } from "@/components/shop/ReviewList";
+import { SimilarProducts } from "@/components/shop/SimilarProducts";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -29,6 +31,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!product) notFound();
 
   const reviews = await getProductReviews(product.id);
+  const similar = await getSimilarProducts(
+    product.id,
+    (product as any).category?.slug ?? null,
+    [product.brand, product.name].filter(Boolean).join(" ")
+  );
   const images = product.product_images?.length ? product.product_images : [{ url: "/placeholder-product.png", id: "0" }];
   const inStock = (product.inventory ?? []).some((i: any) => i.quantity > 0);
 
@@ -89,6 +96,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </div>
 
       <ReviewList productId={product.id} reviews={reviews} />
+
+      <SimilarProducts items={similar} />
     </div>
   );
 }
