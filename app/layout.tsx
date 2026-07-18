@@ -26,6 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Navbar
           isLoggedIn={!!auth}
           isAdmin={auth?.profile?.role === "admin"}
+          role={auth?.profile?.role}
           cartCount={items.reduce((n: number, i: any) => n + i.quantity, 0)}
         />
         <main className="min-h-[70vh]">{children}</main>
