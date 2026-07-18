@@ -30,25 +30,25 @@ export default function RegisterPage() {
       <form action={handleSubmit} className="mt-8 space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Full Name</label>
-          <input name="fullName" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:bg-slate-800 dark:border-slate-700" />
+          <input name="fullName" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:bg-slate-800 dark:border-slate-700" />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
-          <input name="email" type="email" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:bg-slate-800 dark:border-slate-700" />
+          <input name="email" type="email" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:bg-slate-800 dark:border-slate-700" />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
-          <input name="password" type="password" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:bg-slate-800 dark:border-slate-700" />
+          <input name="password" type="password" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:bg-slate-800 dark:border-slate-700" />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Confirm Password</label>
-          <input name="confirmPassword" type="password" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:bg-slate-800 dark:border-slate-700" />
+          <input name="confirmPassword" type="password" required className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:bg-slate-800 dark:border-slate-700" />
         </div>
         <Button type="submit" isLoading={isPending} className="w-full">Create Account</Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        Already have an account? <Link href="/login" className="font-medium text-brand-600 hover:underline">Sign in</Link>
+        Already have an account? <Link href="/login" className="font-medium text-indigo-600 hover:underline">Sign in</Link>
       </p>
     </div>
   );
