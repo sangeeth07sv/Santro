@@ -17,6 +17,10 @@ export interface Profile {
   avatar_url: string | null;
   phone: string | null;
   role: UserRole;
+  shop_name: string | null;
+  shop_address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 }
