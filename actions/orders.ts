@@ -146,6 +146,24 @@ export async function getUserOrders() {
   return data ?? [];
 }
 
+// ---------------- DELIVERY PARTNER ----------------
+
+/**
+ * All orders that are ready to move (confirmed through out_for_delivery).
+ * NOTE: there's no per-partner assignment table yet, so this returns every
+ * such order to every delivery_partner — fine for one or two partners,
+ * not fine once there are many. See migration 002 comment for the caveat.
+ */
+export async function getDeliveryOrders() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("id, order_number, status, total, shipping_address, created_at")
+    .in("status", ["confirmed", "processing", "shipped", "out_for_delivery"])
+    .order("created_at", { ascending: true });
+  return data ?? [];
+}
+
 // ---------------- ADMIN ----------------
 
 export async function updateOrderStatus(orderId: string, status: string) {
@@ -166,5 +184,6 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
   revalidatePath("/admin/orders");
   revalidatePath("/dashboard/orders");
+  revalidatePath("/delivery/dashboard");
   return { success: true };
 }
