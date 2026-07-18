@@ -60,7 +60,7 @@ export default function LoginPage() {
         <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
       </div>
 
-      <form action={async () => { "use server"; await signInWithGoogle(); }}>
+      <form action={signInWithGoogle}>
         <button type="submit" className="btn-outline w-full">Continue with Google</button>
       </form>
 
