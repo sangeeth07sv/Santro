@@ -8,7 +8,9 @@ create extension if not exists "uuid-ossp";
 create extension if not exists "pg_trgm"; -- for fuzzy product search
 
 -- ---------- ENUM TYPES ----------
-create type user_role as enum ('customer', 'admin');
+-- Text + check constraint instead of a fixed enum, so new roles can be added
+-- later without an "ALTER TYPE ... ADD VALUE" migration headache.
+create domain user_role as text check (value in ('customer', 'admin', 'shop_owner', 'delivery_partner'));
 create type order_status as enum ('pending','confirmed','processing','shipped','out_for_delivery','delivered','cancelled','refunded');
 create type payment_status as enum ('pending','paid','failed','refunded');
 create type payment_method as enum ('razorpay','stripe','upi','cod');
@@ -25,6 +27,12 @@ create table profiles (
   avatar_url text,
   phone text,
   role user_role not null default 'customer',
+  -- shop_owner-only fields (null for other roles)
+  shop_name text,
+  shop_description text,
+  -- delivery_partner-only fields (null for other roles)
+  vehicle_number text,
+  is_available boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -49,6 +57,7 @@ create table products (
   slug text not null unique,
   description text,
   category_id uuid references categories(id) on delete set null,
+  owner_id uuid references profiles(id) on delete set null, -- shop owner; null = admin-managed
   price numeric(10,2) not null check (price >= 0),
   compare_at_price numeric(10,2),
   sku text unique,
@@ -161,6 +170,7 @@ create table orders (
   tax numeric(10,2) not null default 0,
   total numeric(10,2) not null,
   coupon_id uuid references coupons(id) on delete set null,
+  delivery_partner_id uuid references profiles(id) on delete set null,
   shipping_address jsonb not null,
   billing_address jsonb,
   notes text,
@@ -240,9 +250,15 @@ create table banners (
 -- auto-create profile on signup
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  chosen_role text := coalesce(new.raw_user_meta_data->>'role', 'customer');
 begin
-  insert into public.profiles (id, full_name, avatar_url)
-  values (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  if chosen_role not in ('customer', 'shop_owner', 'delivery_partner') then
+    chosen_role := 'customer'; -- never let signup metadata grant 'admin'
+  end if;
+
+  insert into public.profiles (id, full_name, avatar_url, role)
+  values (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url', chosen_role);
   insert into public.carts (user_id) values (new.id);
   return new;
 end;
@@ -324,17 +340,6 @@ $$ language plpgsql security definer;
 -- ============================================================================
 -- ROW LEVEL SECURITY
 -- ============================================================================
--- NOTE: RLS policies below only take effect once the anon/authenticated
--- roles have base table privileges. Without these GRANTs, Postgres blocks
--- access before RLS is ever evaluated ("permission denied for table ...").
-
-grant usage on schema public to anon, authenticated;
-grant select on all tables in schema public to anon;
-grant select, insert, update, delete on all tables in schema public to authenticated;
-alter default privileges in schema public grant select on tables to anon;
-alter default privileges in schema public grant select, insert, update, delete on tables to authenticated;
-grant usage, select on all sequences in schema public to authenticated;
-alter default privileges in schema public grant usage, select on sequences to authenticated;
 
 alter table profiles enable row level security;
 alter table categories enable row level security;
@@ -359,6 +364,16 @@ returns boolean as $$
   select exists (select 1 from profiles where id = auth.uid() and role = 'admin');
 $$ language sql security definer stable;
 
+create or replace function public.is_shop_owner()
+returns boolean as $$
+  select exists (select 1 from profiles where id = auth.uid() and role = 'shop_owner');
+$$ language sql security definer stable;
+
+create or replace function public.is_delivery_partner()
+returns boolean as $$
+  select exists (select 1 from profiles where id = auth.uid() and role = 'delivery_partner');
+$$ language sql security definer stable;
+
 -- PROFILES
 create policy "profiles_select_own_or_admin" on profiles for select using (auth.uid() = id or is_admin());
 create policy "profiles_update_own" on profiles for update using (auth.uid() = id);
@@ -370,11 +385,14 @@ create policy "categories_admin_write" on categories for insert with check (is_a
 create policy "categories_admin_update" on categories for update using (is_admin());
 create policy "categories_admin_delete" on categories for delete using (is_admin());
 
--- PRODUCTS (public read active, admin full)
-create policy "products_public_read" on products for select using (is_active = true or is_admin());
-create policy "products_admin_insert" on products for insert with check (is_admin());
-create policy "products_admin_update" on products for update using (is_admin());
-create policy "products_admin_delete" on products for delete using (is_admin());
+-- PRODUCTS (public read active; admin full; shop owners manage their own)
+create policy "products_public_read" on products for select using (is_active = true or is_admin() or owner_id = auth.uid());
+create policy "products_owner_insert" on products for insert
+  with check (is_admin() or (is_shop_owner() and owner_id = auth.uid()));
+create policy "products_owner_update" on products for update
+  using (is_admin() or (is_shop_owner() and owner_id = auth.uid()));
+create policy "products_owner_delete" on products for delete
+  using (is_admin() or (is_shop_owner() and owner_id = auth.uid()));
 
 -- PRODUCT IMAGES (public read, admin write)
 create policy "product_images_public_read" on product_images for select using (true);
@@ -409,10 +427,13 @@ create policy "coupons_admin_write" on coupons for insert with check (is_admin()
 create policy "coupons_admin_update" on coupons for update using (is_admin());
 create policy "coupons_admin_delete" on coupons for delete using (is_admin());
 
--- ORDERS (own only, admin full)
-create policy "orders_own_select" on orders for select using (auth.uid() = user_id or is_admin());
+-- ORDERS (own only; admin full; assigned delivery partner can view/update status)
+create policy "orders_own_select" on orders for select
+  using (auth.uid() = user_id or is_admin() or delivery_partner_id = auth.uid());
 create policy "orders_own_insert" on orders for insert with check (auth.uid() = user_id);
 create policy "orders_admin_update" on orders for update using (is_admin());
+create policy "orders_delivery_update" on orders for update
+  using (is_delivery_partner() and delivery_partner_id = auth.uid());
 
 -- ORDER ITEMS (via parent order ownership)
 create policy "order_items_select" on order_items for select
@@ -441,6 +462,21 @@ create policy "banners_public_read" on banners for select using (is_active = tru
 create policy "banners_admin_write" on banners for insert with check (is_admin());
 create policy "banners_admin_update" on banners for update using (is_admin());
 create policy "banners_admin_delete" on banners for delete using (is_admin());
+
+- ============================================================================
+-- GRANTS
+-- RLS policies only take effect once the anon/authenticated roles also have
+-- base table privileges. Without these GRANTs, Postgres blocks access before
+-- RLS is ever evaluated ("permission denied for table ...").
+-- ============================================================================
+
+grant usage on schema public to anon, authenticated;
+grant select on all tables in schema public to anon;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+alter default privileges in schema public grant select on tables to anon;
+alter default privileges in schema public grant select, insert, update, delete on tables to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+alter default privileges in schema public grant usage, select on sequences to authenticated;
 
 -- ============================================================================
 -- SEED: make the first signed-up user an admin manually via:
