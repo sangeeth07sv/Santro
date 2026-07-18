@@ -62,7 +62,7 @@ export function CheckoutForm({
           <h2 className="mb-3 font-semibold text-slate-800 dark:text-white">Shipping Address</h2>
           <div className="space-y-2">
             {addresses.map((addr) => (
-              <label key={addr.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:border-slate-700">
+              <label key={addr.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 dark:border-slate-700">
                 <input
                   type="radio"
                   name="address_id"
@@ -84,7 +84,7 @@ export function CheckoutForm({
           <h2 className="mb-3 font-semibold text-slate-800 dark:text-white">Payment Method</h2>
           <div className="space-y-2">
             {PAYMENT_METHODS.map((pm) => (
-              <label key={pm.value} className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:border-slate-700">
+              <label key={pm.value} className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 dark:border-slate-700">
                 <input type="radio" name="payment_method" value={pm.value} defaultChecked={pm.value === "cod"} />
                 <span className="text-sm">{pm.label}</span>
               </label>
@@ -113,4 +113,5 @@ export function CheckoutForm({
       </div>
     </form>
   );
-}
+    }
+          
