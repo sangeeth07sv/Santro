@@ -83,7 +83,24 @@ export async function getProductReviews(productId: string) {
   return data ?? [];
 }
 
-// ---------------- ADMIN CRUD ----------------
+export async function getCategories() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("categories").select("id, name, slug").eq("is_active", true).order("sort_order");
+  return data ?? [];
+}
+
+/** Products uploaded by the given shop owner (or all admin-owned products if ownerId is null). */
+export async function getMyProducts(ownerId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("products")
+    .select("*, product_images(*), inventory(quantity)")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+// ---------------- ADMIN / SHOP OWNER CRUD ----------------
 
 export async function createProduct(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
@@ -96,13 +113,35 @@ export async function createProduct(formData: FormData) {
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("products").insert(parsed.data).select().single();
+
+  // owner_id is derived server-side from the session, never trusted from the
+  // client — a shop_owner always owns what they upload, an admin uploads to
+  // the shared catalog (owner_id null). RLS backs this up independently.
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null };
+  const ownerId = profile?.role === "shop_owner" ? user!.id : null;
+
+  const { data, error } = await supabase
+    .from("products")
+    .insert({ ...parsed.data, owner_id: ownerId })
+    .select()
+    .single();
   if (error) return { error: error.message };
 
+  // optional single image URL, uploaded straight from the form
+  const imageUrl = raw.image_url as string | undefined;
+  if (imageUrl) {
+    await supabase.from("product_images").insert({ product_id: data.id, url: imageUrl, is_primary: true });
+  }
+
   // seed a default inventory row
-  await supabase.from("inventory").insert({ product_id: data.id, variant_key: "default", quantity: 0 });
+  const startingQty = Number(raw.quantity) || 0;
+  await supabase.from("inventory").insert({ product_id: data.id, variant_key: "default", quantity: startingQty });
 
   revalidatePath("/admin/products");
+  revalidatePath("/shop/dashboard");
   revalidatePath("/products");
   return { success: true, product: data };
 }
