@@ -22,10 +22,7 @@ const CUSTOMER_ITEMS: NavItem[] = [
 ];
 
 const SHOP_OWNER_ITEMS: NavItem[] = [
-  { href: "/shop/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/shop/products", label: "Products", icon: Package },
-  { href: "/shop/products/new", label: "Add", icon: Store },
-  { href: "/shop/dashboard/orders", label: "Orders", icon: Bell },
+  { href: "/dashboard/shop", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard", label: "Account", icon: User },
 ];
 
