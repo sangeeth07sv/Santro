@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-slate-900 dark:bg-surface-dark dark:text-slate-100 antialiased;
+}
+
+/* Skeleton shimmer for loading states */
+.skeleton {
+  @apply relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-md;
+}
+.skeleton::after {
+  content: "";
+  @apply absolute inset-0 -translate-x-full;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.08), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Primary button style used across the app */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5
+    text-sm font-medium text-white shadow-card transition-colors
+    hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-brand-200
+    bg-white px-5 py-2.5 text-sm font-medium text-brand-700 transition-colors
+    hover:bg-brand-50 dark:bg-transparent dark:border-slate-700 dark:text-slate-100;
+}
+
+.card {
+  @apply rounded-xl border border-slate-100 bg-white shadow-card dark:bg-slate-900 dark:border-slate-800;
+}
