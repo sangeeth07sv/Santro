@@ -36,19 +36,19 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
-            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:bg-slate-800 dark:border-slate-700"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:bg-slate-800 dark:border-slate-700"
           />
         </div>
         <div>
           <div className="mb-1 flex items-center justify-between">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
-            <Link href="/reset-password" className="text-xs text-brand-600 hover:underline">Forgot password?</Link>
+            <Link href="/reset-password" className="text-xs text-indigo-600 hover:underline">Forgot password?</Link>
           </div>
           <input
             name="password"
             type="password"
             required
-            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:bg-slate-800 dark:border-slate-700"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:bg-slate-800 dark:border-slate-700"
           />
         </div>
         <Button type="submit" isLoading={isPending} className="w-full">Sign In</Button>
@@ -65,7 +65,7 @@ export default function LoginPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        Don't have an account? <Link href="/register" className="font-medium text-brand-600 hover:underline">Sign up</Link>
+        Don't have an account? <Link href="/register" className="font-medium text-indigo-600 hover:underline">Sign up</Link>
       </p>
     </div>
   );
