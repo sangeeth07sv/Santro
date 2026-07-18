@@ -6,31 +6,46 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary brand blue scale — white background, blue accents throughout
-        brand: {
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb", // primary CTA blue
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
+        // Night-bazaar indigo — nav, footer, dark surfaces, headings
+        indigo: {
+          50: "#f1effa",
+          100: "#e1ddf2",
+          400: "#5d4d99",
+          600: "#382a63",
+          700: "#2c2050",
+          800: "#241b3e",
+          900: "#181228",
         },
+        // Marigold — the signature accent: CTAs, price tags, active states
+        marigold: {
+          50: "#fdf3e2",
+          100: "#faf3d",
+          300: "#f0c069",
+          500: "#e8a33d",
+          600: "#cf8a26",
+          700: "#a86c1b",
+        },
+        // Paisley green — savings, in-stock, delivery/trust signals
+        paisley: {
+          50: "#e9f5f0",
+          500: "#1f7a5c",
+          600: "#186049",
+        },
+        ink: "#1a1610",
         surface: {
-          DEFAULT: "#ffffff",
-          muted: "#f8fafc",
-          dark: "#0b1220",
+          DEFAULT: "#fffcf7", // paper
+          muted: "#f4eedf", // sand
+          dark: "#181228",
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        card: "0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04)",
-        elevated: "0 10px 30px -10px rgba(37,99,235,0.25)",
+        card: "0 1px 3px rgba(24,18,40,0.08), 0 1px 2px rgba(24,18,40,0.05)",
+        elevated: "0 14px 34px -12px rgba(232,163,61,0.35)",
       },
       borderRadius: {
         xl: "0.875rem",
