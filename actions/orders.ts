@@ -164,6 +164,17 @@ export async function getDeliveryOrders() {
   return data ?? [];
 }
 
+export async function getDeliveryOrderById(orderId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, order_number, status, total, shipping_address, order_items(*), created_at")
+    .eq("id", orderId)
+    .single();
+  if (error || !data) return null;
+  return data;
+}
+
 // ---------------- ADMIN ----------------
 
 export async function updateOrderStatus(orderId: string, status: string) {
