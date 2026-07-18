@@ -54,17 +54,17 @@ export function ProductCard({ product, wishlisted = false }: { product: Product;
         aria-label="Toggle wishlist"
         className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-2 shadow-card backdrop-blur transition-transform hover:scale-110 dark:bg-slate-800/90"
       >
-        <Heart className={cn("h-4 w-4", isWishlisted ? "fill-brand-600 text-brand-600" : "text-slate-400")} />
+        <Heart className={cn("h-4 w-4", isWishlisted ? "fill-marigold-500 text-marigold-500" : "text-slate-400")} />
       </button>
 
       {discountPct && (
-        <span className="absolute left-3 top-3 z-10 rounded-full bg-brand-600 px-2 py-1 text-xs font-semibold text-white">
+        <span className="absolute left-3 top-3 z-10 -rotate-3 rounded-sm bg-paisley-500 px-2 py-1 text-xs font-semibold text-white">
           -{discountPct}%
         </span>
       )}
 
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800">
+        <div className="relative aspect-square overflow-hidden bg-surface-muted dark:bg-indigo-700">
           <Image
             src={primaryImage}
             alt={product.name}
@@ -75,22 +75,20 @@ export function ProductCard({ product, wishlisted = false }: { product: Product;
         </div>
 
         <div className="p-4">
-          {product.brand && <p className="text-xs uppercase tracking-wide text-slate-400">{product.brand}</p>}
-          <h3 className="mt-1 line-clamp-2 text-sm font-medium text-slate-800 dark:text-slate-100">{product.name}</h3>
+          {product.brand && <p className="text-xs uppercase tracking-wide text-ink/40">{product.brand}</p>}
+          <h3 className="mt-1 line-clamp-2 text-sm font-medium text-ink dark:text-slate-100">{product.name}</h3>
 
           {product.rating_count > 0 && (
-            <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+            <div className="mt-1 flex items-center gap-1 text-xs text-ink/50">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               {product.rating_avg.toFixed(1)} ({product.rating_count})
             </div>
           )}
 
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-base font-semibold text-brand-700 dark:text-brand-400">
-              ₹{product.price.toLocaleString("en-IN")}
-            </span>
+            <span className="price-tag">₹{product.price.toLocaleString("en-IN")}</span>
             {product.compare_at_price && (
-              <span className="text-xs text-slate-400 line-through">
+              <span className="text-xs text-ink/40 line-through">
                 ₹{product.compare_at_price.toLocaleString("en-IN")}
               </span>
             )}
