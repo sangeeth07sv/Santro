@@ -64,7 +64,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           )}
 
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-brand-700 dark:text-brand-400">
+            <span className="text-3xl font-bold text-indigo-700 dark:text-marigold-400">
               ₹{product.price.toLocaleString("en-IN")}
             </span>
             {product.compare_at_price && (
