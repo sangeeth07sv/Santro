@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" }, // Supabase Storage images
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" }, // Google avatars
+      { protocol: "https", hostname: "images.unsplash.com" }, // seed/demo product images
     ],
   },
   experimental: {
