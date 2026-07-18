@@ -9,10 +9,12 @@ import { cn } from "@/utils/cn";
 export function Navbar({
   isLoggedIn,
   isAdmin,
+  role,
   cartCount,
 }: {
   isLoggedIn: boolean;
   isAdmin: boolean;
+  role?: string | null;
   cartCount: number;
 }) {
   const router = useRouter();
@@ -45,6 +47,16 @@ export function Navbar({
           {isAdmin && (
             <Link href="/admin" className="text-sm text-indigo-100 hover:text-marigold-300">
               Admin
+            </Link>
+          )}
+          {(role === "shop_owner" || isAdmin) && (
+            <Link href="/shop/dashboard" className="text-sm text-indigo-100 hover:text-marigold-300">
+              My Shop
+            </Link>
+          )}
+          {(role === "delivery_partner" || isAdmin) && (
+            <Link href="/delivery/dashboard" className="text-sm text-indigo-100 hover:text-marigold-300">
+              Deliveries
             </Link>
           )}
         </nav>
@@ -102,9 +114,15 @@ export function Navbar({
             <Link href="/products" onClick={() => setMenuOpen(false)}>Shop</Link>
             <Link href="/categories" onClick={() => setMenuOpen(false)}>Categories</Link>
             {isAdmin && <Link href="/admin" onClick={() => setMenuOpen(false)}>Admin</Link>}
+            {(role === "shop_owner" || isAdmin) && (
+              <Link href="/shop/dashboard" onClick={() => setMenuOpen(false)}>My Shop</Link>
+            )}
+            {(role === "delivery_partner" || isAdmin) && (
+              <Link href="/delivery/dashboard" onClick={() => setMenuOpen(false)}>Deliveries</Link>
+            )}
           </nav>
         </div>
       )}
     </header>
   );
-}
+                }
