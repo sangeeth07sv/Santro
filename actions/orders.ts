@@ -190,6 +190,22 @@ export async function claimDelivery(orderId: string) {
   return { success: true };
 }
 
+/** Single order for the delivery tracking screen — assigned partner or admin only. */
+export async function getDeliveryOrderById(orderId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const isAdmin = profile?.role === "admin";
+
+  let query = supabase.from("orders").select("*, order_items(*)").eq("id", orderId);
+  if (!isAdmin) query = query.eq("delivery_partner_id", user.id);
+
+  const { data } = await query.maybeSingle();
+  return data;
+}
+
 export async function updateDeliveryStatus(orderId: string, status: "out_for_delivery" | "delivered") {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -228,4 +244,4 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath("/dashboard/orders");
   return { success: true };
 }
-  
+
