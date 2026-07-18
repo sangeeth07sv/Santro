@@ -49,10 +49,9 @@ export async function register(formData: FormData): Promise<ActionResult> {
 
   if (error) return { error: error.message };
 
-  return { success: true }; // profile + cart auto-created via DB trigger
+  return { success: true };
 }
 
-/** Google OAuth — call from a Client Component button, then redirect to the returned URL. */
 export async function signInWithGoogle() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -64,7 +63,7 @@ export async function signInWithGoogle() {
   });
 
   if (error || !data.url) {
-    return { error: error?.message ?? "Could not start Google sign-in" };
+    redirect("/login?error=google_signin_failed");
   }
   redirect(data.url);
 }
