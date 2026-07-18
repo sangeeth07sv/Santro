@@ -3,7 +3,7 @@
 //   npx supabase gen types typescript --project-id <your-project-id> > types/database.ts
 // and merge with the domain helper types below.
 
-export type UserRole = "customer" | "admin";
+export type UserRole = "customer" | "admin" | "shop_owner" | "delivery_partner";
 export type OrderStatus =
   | "pending" | "confirmed" | "processing" | "shipped"
   | "out_for_delivery" | "delivered" | "cancelled" | "refunded";
@@ -48,6 +48,7 @@ export interface Product {
   is_featured: boolean;
   rating_avg: number;
   rating_count: number;
+  owner_id: string | null; // profile id of the shop owner who uploaded it; null = admin-owned
   created_at: string;
   updated_at: string;
   // joined
