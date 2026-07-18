@@ -31,6 +31,7 @@ export async function register(formData: FormData): Promise<ActionResult> {
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
+    role: formData.get("role") || "customer",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -41,7 +42,7 @@ export async function register(formData: FormData): Promise<ActionResult> {
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { full_name: parsed.data.fullName },
+      data: { full_name: parsed.data.fullName, role: parsed.data.role },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   });
@@ -97,6 +98,27 @@ export async function logout() {
   redirect("/");
 }
 
+/**
+ * Lets a signed-in user switch between customer / shop_owner / delivery_partner
+ * at any time (e.g. from the dashboard-picker CTA). "admin" is intentionally
+ * unreachable here — that role can only be granted manually in Supabase.
+ */
+export async function updateRole(newRole: "customer" | "shop_owner" | "delivery_partner"): Promise<ActionResult> {
+  if (!["customer", "shop_owner", "delivery_partner"].includes(newRole)) {
+    return { error: "Invalid role" };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Please sign in first" };
+
+  const { error } = await supabase.from("profiles").update({ role: newRole }).eq("id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  return { success: true };
+}
+
 export async function getCurrentUser() {
   const supabase = await createClient();
   const {
@@ -106,4 +128,4 @@ export async function getCurrentUser() {
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   return { user, profile };
-}
+                     }
