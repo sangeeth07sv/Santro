@@ -16,7 +16,7 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+        setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
@@ -32,11 +32,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isProtected =
-    path.startsWith("/dashboard") ||
-    path.startsWith("/checkout") ||
-    path.startsWith("/shop") ||
-    path.startsWith("/delivery");
+  const isProtected = path.startsWith("/dashboard") || path.startsWith("/checkout");
   const isAdmin = path.startsWith("/admin");
 
   if (!user && (isProtected || isAdmin)) {
@@ -45,14 +41,20 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (isAdmin && user) {
+  if ((isAdmin || path.startsWith("/dashboard/shop") || path.startsWith("/dashboard/delivery")) && user) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    if (profile?.role !== "admin") {
+    if (isAdmin && profile?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    if (path.startsWith("/dashboard/shop") && profile?.role !== "shop_owner") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    if (path.startsWith("/dashboard/delivery") && profile?.role !== "delivery_partner") {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
